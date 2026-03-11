@@ -1,0 +1,28 @@
+name: Terraform Lint & Validate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  terraform:
+    name: Format & Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_version: 1.11.4
+
+      - name: terraform fmt (check)
+        run: terraform fmt -check -diff -recursive
+
+      - name: terraform init
+        run: terraform init -backend=false
+
+      - name: terraform validate
+        run: terraform validate

@@ -1,0 +1,56 @@
+#cloud-config
+
+write_files:
+  - path: /etc/apt/keyrings
+    permissions: "0755"
+    owner: root:root
+    content: ""
+
+  - path: /etc/google-cloud-ops-agent/config.yaml
+    permissions: "0644"
+    owner: root
+    content: |
+      combined:
+        receivers:
+          otlp:
+            type: otlp
+            metrics_mode: googlecloudmonitoring
+      metrics:
+        service:
+          pipelines:
+            otlp:
+              receivers: [otlp]
+      traces:
+        service:
+          pipelines:
+            otlp:
+              receivers: [otlp]
+
+swap:
+  filename: /swapfile
+  size: ${swap_size_gb}G
+  maxsize: ${swap_size_gb}G
+
+runcmd:
+  # We need curl to download the gateway binary
+  - |
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update -y -qq
+    apt-get install -y -qq curl
+  # Install Firezone Gateway early to allow healthcheck to succeed.
+  - |
+    export FIREZONE_TOKEN="${firezone_token}"
+    export FIREZONE_ID="$(head -c 32 /dev/urandom | sha256sum | cut -d' ' -f1)"
+    export FIREZONE_API_URL="${firezone_api_url}"
+    export FIREZONE_VERSION="${firezone_version}"
+    export FIREZONE_ARTIFACT_URL="${firezone_artifact_url}"
+    export FIREZONE_LOG_FORMAT="${observability_log_format}"
+    export FIREZONE_GOOGLE_CLOUD_PROJECT_ID="${project_id}"
+    export FIREZONE_OTLP_GRPC_ENDPOINT="${otlp_grpc_endpoint}"
+    export RUST_LOG="${observability_log_level}"
+    curl -fsSL https://raw.githubusercontent.com/firezone/firezone/main/scripts/gateway-systemd-install.sh -o /tmp/gateway-install.sh
+    bash /tmp/gateway-install.sh
+  # Install Ops Agent
+  - |
+    curl -fsSL https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh -o /tmp/ops-agent.sh
+    bash /tmp/ops-agent.sh --also-install

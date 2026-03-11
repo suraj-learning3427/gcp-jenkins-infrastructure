@@ -1,0 +1,5 @@
+project_id     = "terraform-project-475116"
+hub_project_id = "networkingglobal-prod"
+region         = "us-central1"
+zone           = "us-central1-a"
+dns_forwarder_ip = "20.20.0.100"
