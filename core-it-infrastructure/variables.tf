@@ -2,6 +2,11 @@
 ## Google Cloud Project Configuration
 ################################################################################
 
+variable "project_id" {
+  type        = string
+  description = "Google Cloud Project ID used by the provider for authentication"
+}
+
 variable "new_project_id" {
   type        = string
   description = "New project ID to create (e.g., core-it-infra-prod)"

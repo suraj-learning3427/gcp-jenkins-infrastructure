@@ -27,10 +27,10 @@ resource "google_compute_firewall" "allow_jenkins" {
     ports    = ["80"]
   }
   
-  source_ranges = ["0.0.0.0/0"]
+  source_ranges = ["10.129.0.0/23", "35.191.0.0/16", "130.211.0.0/22"]
   target_tags   = ["jenkins-server"]
   
-  description = "Allow Jenkins web interface access on port 80"
+  description = "Allow Jenkins web interface access on port 80 from ILB proxy subnet and GCP health check ranges only"
 }
 
 # Data disk for Jenkins

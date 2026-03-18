@@ -6,11 +6,11 @@ $certStart = "-----BEGIN CERTIFICATE-----"
 $certEnd = "-----END CERTIFICATE-----"
 
 # Find all certificate boundaries
-$matches = [regex]::Matches($fullchain, "(?s)$certStart.*?$certEnd")
+$certMatches = [regex]::Matches($fullchain, "(?s)$certStart.*?$certEnd")
 
-if ($matches.Count -ge 2) {
+if ($certMatches.Count -ge 2) {
     # Second certificate is the intermediate
-    $intermediateCert = $matches[1].Value
+    $intermediateCert = $certMatches[1].Value
     
     # Save to file
     $intermediateCert | Out-File -FilePath ".\cert\intermediate-extracted.crt" -Encoding ASCII
@@ -21,5 +21,5 @@ if ($matches.Count -ge 2) {
     Write-Host "Import-Certificate -FilePath 'C:\path\to\intermediate-extracted.crt' -CertStoreLocation Cert:\LocalMachine\CA"
 } else {
     Write-Host "ERROR: Could not find intermediate certificate in fullchain.pem"
-    Write-Host "Found $($matches.Count) certificates, expected at least 2"
+    Write-Host "Found $($certMatches.Count) certificates, expected at least 2"
 }
